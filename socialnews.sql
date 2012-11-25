@@ -34,6 +34,11 @@ CREATE TABLE news_tags (
 	news_id INTEGER NOT NULL REFERENCES news(id)
 );
 
+CREATE TABLE news_favorites (
+	user_id INTEGER NOT NULL REFERENCES users(id),
+	news_id INTEGER NOT NULL REFERENCES news(id)
+);
+
 
 INSERT INTO tags VALUES(NULL, 'Desporto');
 INSERT INTO tags VALUES(NULL, 'Palha');

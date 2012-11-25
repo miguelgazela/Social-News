@@ -8,6 +8,10 @@ body, html { height: 100%; width:100%; }
 	display:none;
 }
 
+.error {
+	color:red;	
+}
+
 .warning {
 	text-align:center;
 	font-family:Arial, Verdana, sans-serif;
@@ -31,10 +35,6 @@ body, html { height: 100%; width:100%; }
 	width:auto;
 	height:50px;
 	border-bottom:solid thin black;
-}
-
-.error {
-	color:red;	
 }
 
 											/* BEGIN NAVIGATION BAR */
@@ -269,6 +269,16 @@ span.posted-by a:hover {
 	border:1px solid #999;
 }
 
+.fullNews img.remove {
+	border:none;
+	float:right;
+	margin:0px 0px;
+}
+
+.fullNews img:hover {
+	cursor:pointer;
+}
+
 .fullNews p {
 	line-height: 140%;
 	font-size:10pt;
@@ -283,6 +293,26 @@ span.posted-by a:hover {
 	float:none;
 	display:block;
 	margin-top:15px;
+}
+
+#favorite {
+	height:16px;
+	width:16px;
+	display:inline-block;
+	margin-left:10px;
+	margin-top:5px;
+}
+
+#favorite:hover {
+	cursor:pointer;
+}
+
+#favorite.off {
+	background: url(images/favoriteOff.png);	
+}
+
+#favorite.on {
+	background:url(images/favoriteOn.png);	
 }
 
 #login {
@@ -448,6 +478,28 @@ span.posted-by a:hover {
 	margin-left:10px;
 }
 
+.comment textarea.editComment {
+	width:680px;
+	max-width:680px;
+	margin-left:10px;
+	padding:5px 10px;
+	border:1px solid #cecece;
+}
+
+.comment textarea.error {
+	background: #f8dbdb;  
+    border-color: #e77776; 
+}
+
+.comment img {
+	float:right;
+	margin-left:10px;	
+}
+
+.comment img:hover {
+	cursor:pointer;	
+}
+
 #newAccountForm {
 	width:700px;
 	margin-left:130px;
@@ -512,6 +564,59 @@ span.posted-by a:hover {
     margin-bottom: 20px;  
     border: 1px solid #efefef;  
 } 
+
+#newCommentForm {
+	width:840px;
+	margin-left:60px;
+	font-family:Arial, Verdana, sans-serif;
+}
+
+#newCommentForm * {
+	display:block;
+	margin-left:20px;
+}
+
+#newCommentForm label {
+	font-size:8pt;
+	color:#666;
+	margin-bottom:5px;
+	font-weight:bold;
+}
+
+#newCommentForm textarea {
+	border:1px solid #cecece;
+	width:780px;
+	max-width:780px;
+	padding:5px 10px;
+}
+
+#newCommentForm textarea.error {
+	background: #f8dbdb;  
+    border-color: #e77776; 
+}
+
+#newCommentForm input[type="button"] {
+	background-color:#666; 
+    color: #fff;  
+    font-weight:bold;  
+    cursor: pointer;
+	font-size:10pt;
+	width:100px;
+	height:25px;
+	margin-top:20px;
+	margin-left:720px;
+}
+
+#newCommentForm input[type="button"]:hover, #newCommentForm input[type="button"]:focus {
+	background-color: #6699ff;
+	border:1px solid #6699ff;
+}
+
+
+#newCommentForm input[type="button"]:active{  
+    background: #3399ff;
+	border:1px solid #3399ff;
+}   
 
 													/* END CONTENT */
 

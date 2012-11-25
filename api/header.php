@@ -6,12 +6,13 @@
 	, '		<li><a href="socialnews.php">Home</a></li>'
 	, '		<li><a href="about.php">About</a></li>'
 	, '		<li><a href="allnews.php">News</a></li>'
-	, '		<li><a href="newsSearch.php">News Search</><li>';
+	, '		<li><a href="newsSearch.php">News Search</a><li>';
 	
 	if(isset($_SESSION['username']) && isset($_SESSION['userPermission'])) {
 		if($_SESSION['userPermission'] != 1)
 			echo '		<li><a href="addNews.php">Add News</a></li>';
-		echo '		<li><a href="api/logout.php">Sign out</a></li>';
+		echo '		<li><a href="favorites.php">Favorites</a></li>';
+		echo '		<li><a href="api/logout.php">Sign out ('.$_SESSION['username'].')</a></li>';
 	}
 	else {
 		if(!isset($_SESSION['username'])) { 

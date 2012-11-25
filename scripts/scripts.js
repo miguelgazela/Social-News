@@ -11,17 +11,14 @@ var totalNews;
 var newsDisplayed = 0;
 var xmlhttp;
 
+/*
+ * Loads the latest news to the main page of the website
+ */
 function loadLatestNews() {
-	var xmlhttp;
-	if(window.XMLHttpRequest)
-		xmlhttp = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
-	else
-  		if(window.ActiveXObject)
-  			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
-		else
-			alert ("Bummer! Your browser does not support XMLHTTP!");
 	
+	makeXMLHTTP();
 	xmlhttp.open("GET","./api/getNews.php",true);
+	xmlhttp.send(); 
 	
 	xmlhttp.onreadystatechange = function() {
 		if(xmlhttp.readyState==4 && xmlhttp.status==200) { 
@@ -38,15 +35,43 @@ function loadLatestNews() {
 			
 				/* adding the latest news */
 				for(var i = 0; i < numberNews; i++) {
-					console.log(news[newsLength-(1+i)]);
 					$('#content-wrapper').append('<div id="news_'+news[newsLength-(1+i)].id+'" class="news"></div>');
 					$('div.news').last().append('<img src="'+news[newsLength-(1+i)].imgUrl+'" alt="news_image" /><h3><a href="shownews.php?news_id='+news[newsLength-(1+i)].id+'">'+news[newsLength-(1+i)].title+'</a></h3><p class="intro">'+validateIntro(news[newsLength-(1+i)].introduction)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news[newsLength-(1+i)].author_ID+'">'+news[newsLength-(1+i)].username+'</a><span class="date">'+checkSubmissionDate(news[newsLength-(1+i)].submissionDate)+'</span></span><ul><li><a href="shownews.php?news_id='+news[newsLength-(1+i)].id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news[newsLength-(1+i)].id+'#comments"><div class="commentsIcon"></div>Comments <span class="num-comments">('+news[newsLength-(1+i)].numberOfComments+')</span></a></li></ul>');
 				}
 				$('div.news').first().css("margin-bottom","100px");
 			}
 		}
+	} 
+}
+
+/*
+ * Loads the favorite news of a user
+ */
+function loadFavoriteNews() {
+	makeXMLHTTP();	
+	xmlhttp.open("GET", "./api/getFavorites.php", true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function() {
+		if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+			if(xmlhttp.responseText == 'NO_ACCESS')
+				alert("It looks like you don't have access to this section");
+			else if(xmlhttp.responseText != 'QUERY_NOT_ABLE_TO_PERFORM') {
+				var news = JSON.parse(xmlhttp.responseText);
+				
+				if(news.length == 0)
+					$('#content-wrapper').append('<p class="warning">You don\'t have favorite news</p>');
+				else {
+					for(var i = 0; i < news.length; i++) {
+					$('#content-wrapper').append('<div id="news_'+news[i].id+'" class="news"></div>');
+					$('div.news').last().append('<img src="'+news[i].imgUrl+'" alt="news_image" /><h3><a href="shownews.php?news_id='+news[i].id+'">'+news[i].title+'</a></h3><p class="intro">'+validateIntro(news[i].introduction)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news[i].author_ID+'">'+news[i].username+'</a><span class="date">'+checkSubmissionDate(news[i].submissionDate)+'</span></span><ul><li><a href="shownews.php?news_id='+news[i].id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news[i].id+'#comments"><div class="commentsIcon"></div>Comments <span class="num-comments">('+news[i].numberOfComments+')</span></a></li></ul>');
+					}
+				}
+			}
+			else
+				alert("It looks like we're having some troubles in our side. Please try again later");
+		}
 	}
-	xmlhttp.send();  
 }
 
 function signin() {
@@ -190,10 +215,96 @@ function createAccount() {
 					accountInfo.text("You've got yourself a brand new account. You can now sign in!");
 					accountInfo.show('fast', function(){});
 				}
-				else {
+				else
 					alert("It looks like we're having some troubles in our side. Please try again later");	
-				}
 			}
+		}
+	}
+}
+
+/*
+ * Adds a comment to a news
+ */
+function addComment() {
+	makeXMLHTTP();
+	xmlhttp.open("GET", "./api/addComment.php?"+$('#newCommentForm').serialize(), true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function() {
+		if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+			var comment = JSON.parse(xmlhttp.responseText);
+			$('#comments').append('<div class="comment id'+comment.comment.id+'"><img src="images/remove.png" alt="remove comment" onclick="removeComment('+comment.comment.id+','+ comment.comment.news_id +')" /><img class="edit" src="images/edit.png" alt="edit comment" onclick="editComment('+comment.comment.id+')" /><h3>'+comment.username+'</h3><h5>'+comment.comment.submissionDate+'</h5><p class="commentText">'+comment.comment.text+'</p></div>');
+			$('#newCommentText').val("");
+		}
+	}
+}
+
+function removeComment(commentID, newsID) {
+	makeXMLHTTP();
+	xmlhttp.open("GET", "api/removeComment.php?commentID="+commentID+"&newsID="+newsID, true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function() {
+		if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+			if(xmlhttp.responseText == 'OK')
+				$('#comments').children('div.id'+commentID).remove();
+			else
+				alert("It looks like we're having some troubles in our side. Please try again later");	
+		}
+	}
+}
+
+function editComment(commentID) {
+	var comment = $('#comments').children('div.id'+commentID);
+	var text = comment.children('p.commentText');
+	var icon = comment.children('img[src="images/edit.png"]');
+	
+	// check if it's already editing the comment
+	if(comment.children('textarea').length == 0) {
+		icon.attr('src', 'images/save.png');
+		comment.append('<textarea class="editComment">'+text.text()+'</textarea>');
+	}
+	else {
+		var textarea = comment.children('textarea');
+		if(textarea.val().length == 0) {
+			textarea.addClass("error");
+		}
+		else {
+			textarea.removeClass("error");
+			icon = comment.children('img[src="images/save.png"]');
+			makeXMLHTTP();
+			
+			xmlhttp.open("POST","./api/editComment.php",true);
+			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			xmlhttp.send("commentID="+commentID+"&text="+textarea.val());
+				
+			xmlhttp.onreadystatechange = function() {
+			if(xmlhttp.readyState==4 && xmlhttp.status==200) { 				
+				if(xmlhttp.responseText == 'OK') {
+					text.text(textarea.val());
+				}
+				else
+					alert("Oops, it looks like that something went wrong. Please try again later.");
+				}
+				icon.attr('src', 'images/edit.png');
+				textarea.remove();
+			}
+		}
+	}
+}
+
+function removeNews(newsID, icon) {
+	makeXMLHTTP();
+	xmlhttp.open("GET", "api/removeNews.php?newsID="+newsID, true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function() {
+		if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+			if(xmlhttp.responseText == 'OK') {
+				window.open('socialnews.php', '_self', '', '');
+			}
+			else
+				alert("It looks like we're having some troubles in our side. Please try again later");	
 		}
 	}
 }
@@ -221,7 +332,7 @@ function addNews() {
 
 function addNewsToPage_2(news) {
 	$('#content-wrapper').append('<div id="news_'+news.id+'" class="news"></div>');
-	$('div.news').last().append('<img src="'+news.imgUrl+'" alt="300x200" /><h3><a href="shownews.php?news_id='+news.id+'">'+news.title+'</a></h3><p class="intro">'+validateIntro(news.introduction)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news.author_ID+'">'+news.username+'</a><span class="date">'+checkSubmissionDate(news.submissionDate)+'</span></span><ul><li><a href="shownews.php?news_id='+news.id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news.id+'#comments"><div class="commentsIcon"></div>Comments <span class="num-comments">('+news.numberOfComments+')</span></a></li></ul>');
+	$('div.news').last().append('<img src="'+news.imgUrl+'" alt="news image" /><h3><a href="shownews.php?news_id='+news.id+'">'+news.title+'</a></h3><p class="intro">'+validateIntro(news.introduction)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news.author_ID+'">'+news.username+'</a><span class="date">'+checkSubmissionDate(news.submissionDate)+'</span></span><ul><li><a href="shownews.php?news_id='+news.id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news.id+'#comments"><div class="commentsIcon"></div>Comments <span class="num-comments">('+news.numberOfComments+')</span></a></li></ul>');
 }
 
 function addNewsToPage_3(news) {
@@ -229,6 +340,38 @@ function addNewsToPage_3(news) {
 	
 	$('#searchResults').append('<div id="news_'+news.id+'" class="news"></div>');
 	$('div.news').last().append('<img src="'+news.imgUrl+'" alt="news image" /><h3><a href="shownews.php?news_id='+news.id+'">'+news.title+'</a></h3><p class="intro">'+validateIntro(news.intro)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news.author_ID+'">'+news.posted_by+'</a><span class="date">'+checkSubmissionDate(date)+'</span></span><ul><li><a href="shownews.php?news_id='+news.id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news.id+'"><div class="commentsIcon"></div>Comments</a></li></ul>');
+}
+
+function favorite(newsID) {
+	var star = $('#favorite');
+	var option;
+	
+	if(star.hasClass('on'))
+		option = 1; // remove favorite
+	else
+		option = 2; // add favorite
+	
+	
+	makeXMLHTTP();
+	xmlhttp.open("GET","./api/markFavorite.php?newsID="+newsID+"&option="+option,true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function() {
+		if(xmlhttp.readyState==4 && xmlhttp.status==200) {
+			if(xmlhttp.responseText == 'OK') {
+				if(star.hasClass('on')) {
+					star.addClass('off');
+					star.removeClass('on');	
+				}
+				else if(star.hasClass('off')) {
+					star.addClass('on');
+					star.removeClass('off');	
+				}
+			}
+			else 
+				alert("It looks like we're having some troubles in our side. Please try again later");	
+		}
+	}
 }
 
 function scroll() {
@@ -373,7 +516,6 @@ function validateNewsTitle() {
 		newsTitle.removeClass("error");
 		return true;
 	}
-	
 }
 
 function validateNewsIntro() {
@@ -411,6 +553,19 @@ function validateImgUrl() {
 	}
 	else {
 		imgUrl.removeClass("error");
+		return true;
+	}
+}
+
+function validateNewsComment() {
+	var comment = $('#newCommentText');
+	
+	if(comment.val().length < 1) {
+		comment.addClass("error");
+		return false;	
+	}
+	else {
+		comment.removeClass("error");
 		return true;
 	}
 }

@@ -22,9 +22,8 @@
     	<? include 'api/header.php'; ?>
         <div id="content-wrapper">
         <?php
-			if(!isset($_SESSION['username'])) {
+			if(!isset($_SESSION['username']))
 				echo '<p class="warning">To access this page, you need to Sign in</p>';
-			}
 			else {
 				if(isset($_SESSION['userPermission']) && $_SESSION['userPermission'] != 1) {
 					echo '<form id="addNews">'
