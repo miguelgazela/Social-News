@@ -24,13 +24,37 @@
         <div id="content-wrapper">
         	<?
         		if(!isset($_GET['awesome_search'])) {
+					
+					if(isset($_SESSION['username']) && $_SESSION['userPermission'] == 3) {
+						echo '<form id="serverPick">'
+						,'<p>Check the servers where you want to run the search</p>'
+						, '<div><input type="checkbox" name="server" value="http://paginas.fe.up.pt/~ei10076/Social_News/api/news.php" checked="checked"><span>Our database</div>';
+					
+						// get the servers available
+						$db = new PDO("sqlite:socialnews.db");
+						$select = "SELECT * from servers";
+						$query = $db->query($select);
+
+						if($query != FALSE) {
+							$result = $query->fetchAll(PDO::FETCH_ASSOC);
+							foreach($result as $server)
+								echo '<div><input type="checkbox" name="server" id="server'.$server['id'].'" value="'.$server['server_name'].'"><span>'.$server['server_name'].'</div>';	
+						}	
+						echo '</form>';
+					}
+					
 					echo '<div id="newsSearchForm">'
 					, '	<p>Use at least one of the following fields</p>'
-					, ' <div><input type="text" name="start_date" autocomplete="off" placeHolder="Start date (YYYY-MM-DDTHH:MM:SS)"></div>'
-					, ' <div><input type="text" name="end_date" autocomplete="off" placeHolder="End date (YYYY-MM-DDTHH:MM:SS)"></div>'
-					, ' <div><input type="text" name="tags" autocomplete="off" placeHolder="tags"></div>'
-					, '	<div><input type="button" value="Search" name="search_submit" onClick="newSearch(2)" /></div>'
-					, '</div>';
+					, ' <div><input type="text" id="startDate_search" name="start_date" autocomplete="off" placeHolder="Start date (YYYY-MM-DDTHH:MM:SS)"></div>'
+					, ' <div><input type="text" id="endDate_search" name="end_date" autocomplete="off" placeHolder="End date (YYYY-MM-DDTHH:MM:SS)"></div>'
+					, ' <div><input type="text" id="tags_search" name="tags" autocomplete="off" placeHolder="tags separated by spaces"></div>';
+					
+					if(isset($_SESSION['username']) && $_SESSION['userPermission'] == 3)
+						echo '	<div><input type="button" value="Search" name="search_submit" onClick="adminSearch()" /></div>';
+					else
+						echo '	<div><input type="button" value="Search" name="search_submit" onClick="newSearch(2)" /></div>';
+						
+					echo '</div>';
 				}
 				else {
 					echo '<p class="hide" id="search_hidden">' . $_GET['awesome_search'] . '</p>';
@@ -40,7 +64,6 @@
 				}
 			?>
             <div id="searchResults">
-            	<p class="warning hide">Oops, it looks like we haven't covered that topic yet</p>
             </div>
         </div>
         <div id="footer"></div>         

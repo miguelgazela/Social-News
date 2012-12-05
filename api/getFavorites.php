@@ -1,6 +1,8 @@
 <?php
 	session_start();
-	
+	header('Content-Type: application/json');
+	$response;
+
 	if(isset($_SESSION['username'])) { 
 		$db = new PDO("sqlite:../socialnews.db");
 		
@@ -10,11 +12,14 @@
 	
 		if($result = $db->query($query)) {
 			$result_rows = $result->fetchAll(PDO::FETCH_ASSOC);
-			echo json_encode($result_rows);
+			$response['result'] = 'OK';
+			$response['news'] = $result_rows;
 		}
 		else
-			die('QUERY_NOT_ABLE_TO_PERFORM');
+			$response['result'] = 'QUERY_NOT_ABLE_TO_PERFORM';
 	}
 	else
-		die('NO_ACCESS');
+		$response['result'] = 'NO_ACCESS';
+
+	die(json_encode($response));
 ?>

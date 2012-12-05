@@ -2,7 +2,7 @@
 	session_start();
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 
 <head>
@@ -21,15 +21,20 @@
 	<div id="wrapper">
     	<? include 'api/header.php'; ?>
         
-        <div id="content-wrapper">
         	<?php
+				echo '<div id="content-wrapper">';
 				if(isset($_GET['news_id'])) {
 				
-					$db = new PDO("sqlite:socialnews.db");					
-					$select = $db->prepare("SELECT news.*, users.username, COUNT(comments.id) as numberOfComments from users, news LEFT JOIN comments ON news.id = comments.news_id WHERE news.id=:news_id and users.id = news.author_ID GROUP BY news.id");
-					$select->bindParam(':news_id', $_GET['news_id'], PDO::PARAM_INT);
-					$select->execute();
-					$result = $select->fetch();
+					$db = new PDO("sqlite:socialnews.db");
+					$newsID = $_GET['news_id'];
+										
+					$select = "SELECT news.*, users.username, COUNT(comments.id) as numberOfComments from users, news LEFT JOIN comments ON news.id = comments.news_id WHERE news.id = '$newsID' AND users.id = news.author_ID GROUP BY news.id";
+					$query = $db->query($select);
+					
+					if($query == FALSE)
+						die('QUERY_NOT_ABLE_TO_PERFORM_1');
+						
+					$result = $query->fetch(PDO::FETCH_ASSOC);
 					
 					if(isset($result['id'])) {
 						echo '<div class="fullNews">'
@@ -38,18 +43,22 @@
 						// adds a icon to remove the news if the user is the author or if he is a admin
 						if(isset($_SESSION['username'])) {
 							if($_SESSION['userPermission'] == 2) {
-								if($result['author_ID'] == $_SESSION['userID'])
-									echo '<img src="images/remove.png" class="remove" alt="remove news" onclick="removeNews(' . $result['id'] . ', this)" />';
+								if($result['author_ID'] == $_SESSION['userID']) {
+									echo '<img src="images/remove.png" class="remove" alt="remove news" onclick="removeNews(' . $result['id'] . ')" />';
+									echo '<img class="editN" src="images/edit.png" alt="edit news" onclick="editNews('.$result['id'].')" />';
+								}
 							}
-							else if($_SESSION['userPermission'] == 3)
-								echo '<img src="images/remove.png" class="remove" alt="remove news" onclick="removeNews(' .$result['id']. ', this)" />';
+							else if($_SESSION['userPermission'] == 3) {
+								echo '<img src="images/remove.png" class="remove" alt="remove news" onclick="removeNews(' .$result['id']. ')" />';
+								echo '<img class="editN" src="images/edit.png" alt="edit news" onclick="editNews('.$result['id'].')" />';
+							}
 						}
 						
 						// adds the news title, introduction, text, author and submission date
 						echo '<h3>' . $result['title'] . '</h3>'
 						, '<p class="intro">' . $result['introduction'] . '</p>'
-						, '<p>' . $result['fulltext'] . '</p>'
-						, '<span class="posted-by">Posted by: <a href="user.php?user_id=' . $result['author_ID'] . '">' . $result['username'] . '</a>'
+						, '<p class="text">' . $result['fulltext'] . '</p>'
+						, '<span class="posted-by">Posted by: <a href="user.php?user_id=' . $result['author_ID'] . '">' . $result['username'] . '</a></span>'
 						, '<span class="date">' . $result['submissionDate'] . '</span>';
 						
 						// check if the user has marked this news as favorite
@@ -70,14 +79,36 @@
 							else
 								echo '<div id="favorite" class="off" onclick="favorite(' . $newsIDfav . ')"></div>';
 						}
-						
+												
 						echo '</span>'
-						, '</div>'
-						, '<div id="comments">'
+						, '</div>'; // closing fullNews
+																		
+						// show the tags of this news
+						$newsID = $result['id'];
+						$tagsSelect = "SELECT id, text, news_id FROM news_tags natural join tags WHERE news_id = '$newsID' AND tags.id = tag_id";
+						$queryTags = $db->query($tagsSelect);
+						if($queryTags == FALSE)
+							die('QUERY_NOT_ABLE_TO_PERFORM_3');
+						
+						$resultTags = $queryTags->fetchAll(PDO::FETCH_ASSOC);
+						
+						echo '<div id="tags">';
+						if(!empty($resultTags)) {
+							foreach($resultTags as $tag) {
+								if(($_SESSION['userPermission'] == 2 || $_SESSION['userPermission'] == 3) && $result['author_ID'] == $_SESSION['userID'])
+									echo '<span class="tag" id="tag'.$tag['id'].'">'.ucwords($tag['text']).'<img src="images/remove8.png" alt="remove tag" onclick="removeTag('.$tag['id'].','.$newsID.')" /></span>';
+								else
+									echo '<span class="tag" id="tag'.$tag['id'].'">'.$tag['text'].'</span>';
+							}
+						}
+						if(($_SESSION['userPermission'] == 2 || $_SESSION['userPermission'] == 3)  && $result['author_ID'] == $_SESSION['userID'])
+							echo '<input type="text" id="tagReader" placeholder="new tag..." onkeyup="addTag(event, '.$newsID.');showHint(this.value);" autocomplete="off" /><p>Suggestions: <span id="tagHint"></span></p>';
+						echo '</div>';
+						
+						echo '<div id="comments">'
 						, '<p>Comments</p>';
 						
 						if($result['numberOfComments'] != 0) {
-							$newsID = $result['id'];
 							$authorID = $result['author_ID'];
 							$select = "SELECT comments.*, users.username FROM users, comments WHERE comments.news_id = '$newsID' AND comments.author_ID = users.id"; 
 							$query = $db->query($select);
@@ -109,7 +140,7 @@
 											echo '<img class="edit" src="images/edit.png" alt="edit comment" onclick="editComment('.$comment['id'].')" />';
 									}
 									
-									echo '<h3>' . $comment['username'] . ' says</h3>'
+									echo '<h3><a href="user.php?user_id='.$comment['author_ID'].'">' . $comment['username'] . '</a> says</h3>'
 									, '<h5>' . $comment['submissionDate'] . '</h5>'
 									, '<p class="commentText">' . $comment['text'] .'</p>'
 									, '</div>';
@@ -133,8 +164,9 @@
 				}
 				else
 					echo '<p class="warning">Please provide an id for the news</p>';
+				
+				echo '</div>';
 			?>
-        </div>
         <div id="footer"></div>         
     </div>
 	

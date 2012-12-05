@@ -23,7 +23,7 @@
         <div id="content-wrapper">
         <?php
 			if(!isset($_SESSION['username']))
-        		echo '<p class="warning hide">To access this page, you need to Sign in</p>';
+        		echo '<p class="warning">To access this page, you need to Sign in</p>';
 			else
 				echo '<script type="text/javascript">loadFavoriteNews()</script>';
 		?>

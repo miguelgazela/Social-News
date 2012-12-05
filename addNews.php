@@ -30,7 +30,7 @@
 					, '	<div><label for="news_title">Título</label><input type="text" id="news_title_form" name="title" onblur="validateNewsTitle()" onkeyup="validateNewsTitle()" value="" autocomplete="off" /></div>'
 					, '	<div><label for="news_intro">Introdução</label><textarea name="intro" id="news_intro_form" onblur="validateNewsIntro()" onkeyup="validateNewsIntro()" rows="7" cols="80"></textarea></div>'
 					, '	<div><label for="news_text">Notícia</label><textarea name="text" id="news_text_form" onblur="validateNewsText()" onkeyup="validateNewsText()" rows="18" cols="80"></textarea></div>'
-					, '	<div><input type="text" name="imgurl" placeHolder="Image url" id="img_url_form" onblur="validateImgUrl()" onkeyup="validateImgUrl()" autocomplete="off" /></div>'
+					, '	<div><input type="text" name="imgurl" id="img_url_form" onblur="validateImgUrl()" onkeyup="validateImgUrl()" autocomplete="off" /></div>'
 					, '	<div><input type="button" value="Add" onClick="addNews()" /></div>'
 					, '</form>';
 				}

@@ -1,6 +1,8 @@
 <?php
 	session_start();
 	
+	echo '<script>checkForNews()</script>';
+	
 	echo '<div id="header">'
 	, '	<nav id="main-nav"><ul>'
 	, '		<li><a href="socialnews.php">Home</a></li>'
@@ -12,7 +14,9 @@
 		if($_SESSION['userPermission'] != 1)
 			echo '		<li><a href="addNews.php">Add News</a></li>';
 		echo '		<li><a href="favorites.php">Favorites</a></li>';
-		echo '		<li><a href="api/logout.php">Sign out ('.$_SESSION['username'].')</a></li>';
+		echo '		<li><a class="linkuser" href="api/logout.php">Sign out</a><a href="user.php?user_id='.$_SESSION['userID'].'">('.$_SESSION['username'].')</a></li>';
+		if($_SESSION['userPermission'] == 3) // admin
+			echo '		<li class="config"><a href="settings.php"><img src="images/config.png" alt="config icon" /></a></li>';
 	}
 	else {
 		if(!isset($_SESSION['username'])) { 

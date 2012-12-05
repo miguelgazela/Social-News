@@ -17,11 +17,13 @@ CREATE TABLE comments (
 );
 
 CREATE TABLE users (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	id INTEGER PRIMARY KEY AUTOINCREMENT, 
 	username VARCHAR,
 	permission INTEGER, 
 	registerDate DATE,
-	password VARCHAR
+	password VARCHAR,
+	name VARCHAR,
+	email VARCHAR
 );
 
 CREATE TABLE tags (
@@ -39,6 +41,16 @@ CREATE TABLE news_favorites (
 	news_id INTEGER NOT NULL REFERENCES news(id)
 );
 
+CREATE TABLE servers (
+	id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	server_name VARCHAR
+);
+
+INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10087/News/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://gnomo.fe.up.pt/~ei10045/proj/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10153/projecto/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10072/LTW/Proj1/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10036/socialus/api/news.php');
 
 INSERT INTO tags VALUES(NULL, 'Desporto');
 INSERT INTO tags VALUES(NULL, 'Palha');
@@ -86,15 +98,15 @@ INSERT INTO news_tags VALUES(10,23);
 INSERT INTO news_tags VALUES(10,24);
 
 
-INSERT INTO users VALUES(NULL, 'admin', 3, DATETIME('now'), 'password');
-INSERT INTO users VALUES(NULL, 'Miguel Oliveira', 2, DATETIME('now'), 'miguel');
-INSERT INTO users VALUES(NULL, 'Daniel Nora', 1, DATETIME('now'), 'nora1');
-INSERT INTO users VALUES(NULL, 'admin2', 3, DATETIME('now'), 'password');
-INSERT INTO users VALUES(NULL, 'Aida Ferreira', 1, DATETIME('now'), 'ferreira');
-INSERT INTO users VALUES(NULL, 'omaster', 1, DATETIME('now'), 'omaster');
-INSERT INTO users VALUES(NULL, 'Vitor-Moreira', 1, DATETIME('now'), 'moreira');
-INSERT INTO users VALUES(NULL, 'Ana Oliveira', 2, DATETIME('now'), 'oliveira');
-INSERT INTO users VALUES(NULL, 'Mister Caldas', 2, DATETIME('now'), 'caldas');
+INSERT INTO users VALUES(NULL, 'admin', 3, DATETIME('now'), 'password', '', '');
+INSERT INTO users VALUES(NULL, 'miguelgazela', 2, DATETIME('now'), 'password', 'Miguel Oliveira', 'miguel.gazela@gmail.com');
+INSERT INTO users VALUES(NULL, 'norad', 1, DATETIME('now'), 'password', 'Daniel Nora', 'daninora9@gmail.com');
+INSERT INTO users VALUES(NULL, 'admin2', 3, DATETIME('now'), 'password', '', '');
+INSERT INTO users VALUES(NULL, 'aida_ccaf', 1, DATETIME('now'), 'ferreira', 'Aida Catarina Ferreira', 'amaster.ccaf@gmail.com');
+INSERT INTO users VALUES(NULL, 'omaster', 1, DATETIME('now'), 'omaster', 'Angelo Silva', 'omaster1@gmail.com');
+INSERT INTO users VALUES(NULL, 'morfik', 1, DATETIME('now'), 'moreira', 'Vitor Moreira', 'vitormoreira@gmail.com');
+INSERT INTO users VALUES(NULL, 'nistross', 2, DATETIME('now'), 'oliveira', 'Ana Patricia Oliveira', 'ana_s_oliveira@gmail.com');
+INSERT INTO users VALUES(NULL, 'MisterCaldas', 2, DATETIME('now'), 'caldas', 'Afonso Caldas', 'afonsocaldas@gmail.com');
 
 
 
@@ -143,7 +155,7 @@ Logo no primeiro dia da competição, as duas equipas da UP apuraram-se para a f
 
 O dia da final não foi tão positivo, mas, ainda assim, permitiu à UP trazer para casa uma medalha de bronze, depois de a U. Porto 2 concluir a prova em terceiro lugar. A U. Porto 1 ficou apenas um lugar atrás. A grande vencedora da corrida foi a equipa da Associação de Estudantes do Instituto Superior Técnico (AEIST), com um dos conjuntos da Universidade Nova de Lisboa a completar o pódio.', DATETIME('now'), 'http://jpn.c2com.up.pt/imagens/desporto/upvela_gadup.jpg');
 
-INSERT INTO news VALUES (NULL, 8, '"Eng n1 min.": Primeira edição chega ao fim', 'Após um ano de emissão diária em três plataformas, a primeira edição do "Eng. n1 min. - Engenharia num Minuto" chega ao fim. Agora, resta fazer uma pausa para avaliar o projeto e pensar em novas formas de dar continuidade ao programa.', 'Depois de 250 programas, chega a hora de uma pausa - que se espera breve - para avaliação. Perceber se o "Eng. n1 min. - Engenharia um Minuto" cativou o público-alvo pretendido e se 60 segundos são suficientes para entender ciência e tecnologia é o objetivo.
+INSERT INTO news VALUES (NULL, 8, 'Eng n1 min.: Primeira edição chega ao fim', 'Após um ano de emissão diária em três plataformas, a primeira edição do "Eng. n1 min. - Engenharia num Minuto" chega ao fim. Agora, resta fazer uma pausa para avaliar o projeto e pensar em novas formas de dar continuidade ao programa.', 'Depois de 250 programas, chega a hora de uma pausa - que se espera breve - para avaliação. Perceber se o "Eng. n1 min. - Engenharia um Minuto" cativou o público-alvo pretendido e se 60 segundos são suficientes para entender ciência e tecnologia é o objetivo.
 
 Raimundo Delgado, coordenador científico do programa, explicou ao JPN que este é um momento para reflectir e fazer o balanço de um ano de emissão. No entanto, admite que o programa superou as expectativas e espera-se por isso dar continuidade ao conceito, ainda que as condições financeiras neste momento sejam adversas.
 

@@ -1,4 +1,5 @@
 <?php
+	header('Content-Type: application/json');
 	
 	if(isset($_GET['start_date']))
 	{		
@@ -14,7 +15,7 @@
 			
 			if(preg_match('/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/', $_GET['start_date']) != 1 || $unix_time_start == false)
 			{
-				$return_string = array(result => "error", reason => "Invalid start_date input", code => 4);
+				$return_string = array(server_name => "T6G9", result => "error", reason => "Invalid start_date input", code => 4);
 				echo json_encode($return_string);
 				exit;
 			}
@@ -22,7 +23,7 @@
 	}
 	else
 	{
-		$return_string = array(result => "error", reason => "start_date field not given", code => 1);
+		$return_string = array(server_name => "T6G9", result => "error", reason => "start_date field not given", code => 1);
 		echo json_encode($return_string);
 		exit;
 	}
@@ -41,7 +42,7 @@
 			
 			if(preg_match('/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/', $_GET['end_date']) != 1 || $unix_time_end == false)
 			{
-				$return_string = array(result => "error", reason => "Invalid end_date input", code => 5);
+				$return_string = array(server_name => "T6G9", result => "error", reason => "Invalid end_date input", code => 5);
 				echo json_encode($return_string);
 				exit;
 			}
@@ -49,14 +50,14 @@
 	}
 	else
 	{
-		$return_string = array(result => "error", reason => "end_date field not given", code => 2);
+		$return_string = array(server_name => "T6G9", result => "error", reason => "end_date field not given", code => 2);
 		echo json_encode($return_string);
 		exit;
 	}
 	
 	if($unix_time_start != -1 && $unix_time_end != -1 && $unix_time_start>$unix_time_end)
 	{
-		$return_string = array(result => "error", reason => "start_date is greater than end_date", code => 6);
+		$return_string = array(server_name => "T6G9", result => "error", reason => "start_date is greater than end_date", code => 6);
 		echo json_encode($return_string);
 		exit;
 	}
@@ -64,14 +65,14 @@
 	
 	if(isset($_GET['tags']) == FALSE)
 	{
-		$return_string = array(result => "error", reason => "tags field not given", code => 3);
+		$return_string = array(server_name => "T6G9", result => "error", reason => "tags field not given", code => 3);
 		echo json_encode($return_string);
 		exit;
 	}
 	
 	if(strlen($_GET['start_date'])==0 && strlen($_GET['end_date'])==0 && strlen($_GET['tags'])==0)
 	{
-		$return_string = array(result => "error", reason => "specify at least one field (start_date, end_date or tags)", code => 7);
+		$return_string = array(server_name => "T6G9", result => "error", reason => "specify at least one field (start_date, end_date or tags)", code => 7);
 		echo json_encode($return_string);
 		exit;
 	}
@@ -143,7 +144,7 @@
 	foreach ($result as $key => $value)
 	{
 		$news_id = $value['id'];
-		$url = 'http://paginas.fe.up.pt/~ei10076/Social_News/show_news.php?news_id=';
+		$url = 'http://paginas.fe.up.pt/~ei10076/Social_News/shownews.php?news_id=';
 		$url .= $news_id;
 		$current_news=&$result[$key];
 		$current_news['url'] = $url;
@@ -157,7 +158,7 @@
 	}
 	
 	$server_answer['result'] = "success";
-	$server_answer['server_name'] = "Grupo09";	
+	$server_answer['server_name'] = "T6G9";	
 	$server_answer['data'] = $result;	
 					
 	echo json_encode($server_answer);	

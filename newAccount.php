@@ -25,6 +25,11 @@
         	<?
         		if(!isset($_SESSION['username'])) {
 					echo '<form id="newAccountForm">  
+							<div>  
+                				<label for="name">Name</label>  
+                				<input id="name" name="name" type="text" placeholder="name" onblur="validateUserName()" onkeyup="validateUserName()" autocomplete="off" />  
+                				<span id="nameInfo">Hello! What\'s your name stranger?</span>  
+            				</div>  
             				<div>  
                 				<label for="username">Username</label>  
                 				<input id="username" name="username" type="text" placeholder="username" onblur="validateUsername()" onkeyup="validateUsername()" autocomplete="off" />  
@@ -33,7 +38,7 @@
             				<div>  
                 				<label for="pass1">Password</label>  
                					<input id="pass1" name="pass1" type="password" placeHolder="password" onblur="validatePass1()" onkeyup="validatePass1()" />  
-                				<span id="pass1Info">At least 5 characters: letters, numbers and \'_\'</span>  
+                				<span id="pass1Info">At least 6 characters: letters, numbers and these: !@#$%^&*()_</span>  
             				</div>  
             				<div>  
                 				<label for="pass2">Confirm Password</label>  
@@ -43,8 +48,7 @@
             				<div>  
                 				<input id="send" name="send" type="button" value="Send" onclick="createAccount()" />  
             					</div>  
-        				</form>'
-				, '<div id="createAccountInfo" class="hide" >createAccountInfo</div>';
+        				</form>';
 				}
 				else
 					echo '<p class="warning">You already have an account</p>';	

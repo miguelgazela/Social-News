@@ -14,17 +14,32 @@
     <h2><a href="https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=200700604">Miguel Oliveira</a> - ei10076</h2>
     <h2><a href="https://sigarra.up.pt/feup/pt/fest_geral.cursos_list?pv_num_unico=201000699">Daniel Nora</a> - ei10030</h2>
     
+    <p>Utilizadores disponíveis na base de dados:</p>
+    <ul>
+        <li>Tipo Administrador
+            <ul>
+                <li>User: admin Password: password</li>
+                <li>User: admin2 Password: password</li>
+            </ul>
+        </li>
+        <li>Tipo Editor
+            <ul>
+                <li>User: miguelgazela Password: password</li>
+                <li>User: nistross Password: oliveira</li>
+            </ul>
+        </li>
+        <li>Tipo Utilizador
+            <ul>
+                <li>User: norad Password: password</li>
+                <li>User: morfik Password: moreira</li>
+            </ul>
+        </li>
+    </ul>
+
     <p>Tarefas concluídas:</p>
     	<ul>
-        	<li>Especificação e desenvolvimento de uma base de dados que permita armazenar notícias e três níveis de permissões de utilizadores (leitor, apenas com permissões de read; editor com permissões de read e write; administrador com capacidade para (des)promover utilizadores já registados a editores e gerir as ligações com outros servidores</li>
-            <li>Criação de um serviço web em PHP que permita fazer pesquisa de notícias na base de dados usando um protocolo conhecido</li>
-            <li>Visualização das notícias e interface da página em HTML e CSS
-            	<ul>
-                	<li>Listagem das últimas notícias inseridas</li>
-                </ul>
-            </li>
-            <li>Criação de um formulário para inserção local de notícias (validação parcial dos campos através de Javascript)</li>
-            <li>Utilização de AJAX/JSON para fazer a pesquisa de notícias existentes na base de dados local a cada servidor com integração das notícias no DOM usando funções de Javascript (através de jQuery)</li>
+        	<li>Todas as tarefas foram implementadas, assim como as funcionalidades por tipo de utilizador.</li>
+            
        	</ul>
         
     <p>Notas adicionais:</p>
@@ -33,6 +48,13 @@
             <li>A página allnews.php (link News do header) apresenta todas as notícias da base de dados. Carrega um certo número de notícias e à medida que o utilizador vai descendo na página utiliza AJAX e Javascript para ir adicionando outras notícias ao DOM.</li>
             <li>A página newsSearch.php (link News Search do header) permite fazer pesquisas utilizando os 3 critérios necessários para o protocolo de pesquisa. Utilizando a pesquisa no header (apenas por tags) os resultados são apresentados nesta página.</li>
             <li>A página newAccount.php (link Create account do header) permite o registo de novo utilizador. Possui verificação por Javascript dos campos do formulário. Esta verificação é feita também no lado do servido caso o utilizador tenha o Javascript desactivado.</li>
+            <li>É possível marcar uma notícia como favorita através de um botão com a imagem de uma estrela presente na notícia.</li>
+            <li>A edição dos comentários e das notícias faz-se numa área que é adicionada abaixo desses elementos.</li>
+            <li>É dado um alerta ao utilizador se foi inserida uma nova notícia na base de dados</li>
+            <li>É utilizado AJAX e JQUERY extensivamente ao longo do site</li>
+            <li>O header do administrador possui um botão extra que permite aceder à zona de configurações do site, onde é possível adicionar ou remover servers remotos e as tags disponíveis na base de dados.</li>
+            <li>O administrador pode também fazer pesquisas noutros servidores e escolher qualquer uma das notícias para adicionar à base de dados. Pode também actualizar a notícia da base de dados caso já a tenha e os dados tenham sido actualizados.</li>
+            <li>
         </ul>
 </body>
 </html>
