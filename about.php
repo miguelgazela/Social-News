@@ -12,11 +12,11 @@
     <meta name="author" content="Miguel Oliveira &amp; Daniel Nora" />
     <meta name="description" content="LTW Social News Project 2012" />
     
-    <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <script src="jquery.js"></script>
 </head>
 
-<body>
+<body class="_About" id="top">
 	<div id="wrapper">
     	<? include 'api/header.php'; ?>
         <div id="content-wrapper">

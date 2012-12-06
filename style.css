@@ -56,7 +56,9 @@ nav#main-nav li a {
 	text-decoration:none;
 	color: #111;
 	float: left;
-	margin-right:30px;
+	margin-right:15px;
+	padding: 1px 6px;
+	border-radius:5px;
 }
 
 nav#main-nav li a.linkuser {
@@ -65,6 +67,74 @@ nav#main-nav li a.linkuser {
 
 nav#main-nav li a:hover {
 	color:#3399ff;
+}
+
+body._Home nav#main-nav li a._Home,
+body._About nav#main-nav li a._About,
+body._AllNews nav#main-nav li a._AllNews,
+body._NewsSearch nav#main-nav li a._NewsSearch,
+body._AddNews nav#main-nav li a._AddNews,
+body._NewAccount nav#main-nav li a._NewAccount,
+body._Favorites nav#main-nav li a._Favorites,
+body._User nav#main-nav li a._User,
+body.config nav#main-nav li a.config {
+	background-color: #29f;
+	color: white;
+}
+
+#back-top {
+	position: fixed;
+	bottom: 30px;
+	margin-left: -150px;
+}
+
+#back-top a {
+	width: 108px;
+	height: 20px;
+	padding-top: 10px;
+	display: block;
+	text-align: center;
+	font: 11px/100% Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	text-decoration: none;
+	color: white;
+	background-color: #ddd;
+
+	/* rounded corners */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+
+	/* transition */
+	-webkit-transition: 1s;
+	-moz-transition: 1s;
+	transition: 1s;
+}
+#back-top a:hover {
+	color: white;
+	background-color: #777;
+}
+
+/* arrow icon (span tag) */
+#back-top span {
+	width: 108px;
+	height: 108px;
+	display: block;
+	margin-bottom: 7px;
+	background: #ddd url(images/uparrow.png) no-repeat center center;
+
+	/* rounded corners */
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+
+	/* transition */
+	-webkit-transition: 1s;
+	-moz-transition: 1s;
+	transition: 1s;
+}
+#back-top a:hover span {
+	background-color: #777;
 }
 
 												/* END NAVIGATION BAR */
@@ -484,6 +554,10 @@ a#showMore:active {
 	padding:0px 5px;
 	margin-right:5px;
 	margin-top:3px;
+}
+
+#settingsTags span.tag.justAdded {
+	border:1px solid #39f;
 }
 
 #tags span.tag img, #settingsTags span.tag img {
@@ -1006,7 +1080,7 @@ div.server img:hover {
 	color: #e46c6e;
 }
 
-#addServerForm input[type="button"] {
+#addServerForm input[type="button"], #serverPick input[type="button"] {
 	width:100px;
 	height:25px;
 	color:white;
@@ -1014,16 +1088,19 @@ div.server img:hover {
 	margin-top:10px;
 }
 
-#addServerForm input[type="button"]:hover {
+#addServerForm input[type="button"]:hover, 
+#serverPick input[type="button"]:hover {
 	background-color:#5599ff;
 	cursor:pointer;
 }
 
-#addServerForm input[type="button"]:focus {
+#addServerForm input[type="button"]:focus, 
+#serverPick input[type="button"]:focus {
 	background-color:#5599ff;
 }
 
-#addServerForm input[type="button"]:active {
+#addServerForm input[type="button"]:active, 
+#serverPick input[type="button"]:active {
 	background-color:#7799ff;
 }
 

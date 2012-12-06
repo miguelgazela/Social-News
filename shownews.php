@@ -13,12 +13,12 @@
     <meta name="description" content="LTW Social News Project 2012" />
     
     <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="scripts/scripts.js"></script>
+    <script src="jquery.js"></script>
+    <script src="scripts/scripts.js"></script>
 </head>
 
 <body>
-	<div id="wrapper">
+	<div id="wrapper" id="top">
     	<? include 'api/header.php'; ?>
         
         	<?php
@@ -102,7 +102,7 @@
 							}
 						}
 						if(($_SESSION['userPermission'] == 2 || $_SESSION['userPermission'] == 3)  && $result['author_ID'] == $_SESSION['userID'])
-							echo '<input type="text" id="tagReader" placeholder="new tag..." onkeyup="addTag(event, '.$newsID.');showHint(this.value);" autocomplete="off" /><p>Suggestions: <span id="tagHint"></span></p>';
+							echo '<input type="text" id="tagReader" placeholder="new tag..hit space to add" onkeyup="addTag(event, '.$newsID.');showHint(this.value);" autocomplete="off" /><p>Suggestions: <span id="tagHint"></span></p>';
 						echo '</div>';
 						
 						echo '<div id="comments">'

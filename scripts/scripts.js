@@ -9,7 +9,7 @@ var NEWS_INC = 5;
 var contentHeight;
 var pageHeight = document.documentElement.clientHeight;
 var scrollPosition;
-var totalNews;
+var totalNews = 0;
 var newsDisplayed = 0;
 var maxNewsID = -1; 
 
@@ -17,38 +17,56 @@ $.ajaxSetup ({
     cache: false  
 });
 
+$(document).ready(function(){
+
+	// hide #back-top first
+	$("#back-top").hide();
+	
+	// fade in #back-top
+	$(function () {
+		$(window).scroll(function () {
+			if ($(this).scrollTop() > 100) {
+				$('#back-top').fadeIn();
+			} else {
+				$('#back-top').fadeOut();
+			}
+		});
+
+		// scroll body to 0px on click
+		$('#back-top a').click(function () {
+			$('body,html').animate({
+				scrollTop: 0
+			}, 800);
+			return false;
+		});
+	});
+});
+
 /* 
  * Loads the latest news to the main page of the website #
  */
 function loadLatestNews() {
-	$.ajax({url:"api/getNews.php", type:"GET", processData: "false", dataType:"JSON"}).done(function(msg) {
-		if(msg['result'] == 'OK') {
-			var news = msg['data'];
+	$.ajax({url:"api/getNews.php", type:"GET", processData: "false", dataType:"JSON", data:{numNews:MIN_NEWS}}).done(function(response) {
+		if(response['result'] == 'OK') {
+			var news = response['data'];
 			var newsLength = news.length;
-			var numberNews;
+	
+			//adding the latest news to the DOM
+			for(var i = 0; i < newsLength; i++) {
+				$('#content-wrapper').append('<div id="news_'+news[i].id+'" class="news"></div>');
+				$('div.news').last().append('<img src="'+news[i].imgUrl+'" alt="news_image" /><h3><a href="shownews.php?news_id='+news[i].id+'">'+news[i].title+'</a></h3><p class="intro">'+validateIntro(news[i].introduction)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news[i].author_ID+'">'+news[i].username+'</a><span class="date">'+checkSubmissionDate(news[i].submissionDate)+'</span></span><ul><li><a href="shownews.php?news_id='+news[i].id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news[i].id+'#comments"><div class="commentsIcon"></div>Comments <span class="num-comments">('+news[i].numberOfComments+')</span></a></li></ul>');
+			}
 		
-			if(newsLength == 0) { // doesn't have any news
-				$('p.warning').removeClass('hide'); 
-			}
-			else {
-				// check if it has at least 10 news to show
-				newsLength > 10 ? numberNews = 10 : numberNews = newsLength;
+			if(response['moreNews'] == true) // has more news in the database
+				$('#content-wrapper').append('<a href="allnews.php" id="showMore">See more news</a>');
 			
-				//adding the latest news to the DOM
-				for(var i = 0; i < numberNews; i++) {
-					$('#content-wrapper').append('<div id="news_'+news[newsLength-(1+i)].id+'" class="news"></div>');
-					$('div.news').last().append('<img src="'+news[newsLength-(1+i)].imgUrl+'" alt="news_image" /><h3><a href="shownews.php?news_id='+news[newsLength-(1+i)].id+'">'+news[newsLength-(1+i)].title+'</a></h3><p class="intro">'+validateIntro(news[newsLength-(1+i)].introduction)+'</p><span class="posted-by">Posted by: <a href="user.php?user_id='+news[newsLength-(1+i)].author_ID+'">'+news[newsLength-(1+i)].username+'</a><span class="date">'+checkSubmissionDate(news[newsLength-(1+i)].submissionDate)+'</span></span><ul><li><a href="shownews.php?news_id='+news[newsLength-(1+i)].id+'"><div class="seemoreIcon"></div>See more...</a></li><li><a href="shownews.php?news_id='+news[newsLength-(1+i)].id+'#comments"><div class="commentsIcon"></div>Comments <span class="num-comments">('+news[newsLength-(1+i)].numberOfComments+')</span></a></li></ul>');
-				}
-			
-				if(newsLength > 10) // has more news in the database
-					$('#content-wrapper').append('<a href="allnews.php" id="showMore">See more news</a>');
-				
-				$('div.news').first().css("margin-bottom","100px");
-			}
+			$('div.news').first().css("margin-bottom","100px");
 		}
+		else if(response['result'] == 'NO_NEWS')
+			$('p.warning').removeClass('hide'); 
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'loadLatestNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -70,7 +88,7 @@ function loadFavoriteNews() {
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'loadFavoriteNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -99,38 +117,33 @@ function signin() {
 			else
 				window.open('socialnews.php', '_self', '', ''); // else sends to the main page
 		}
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'signin' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
  * Loads a certain number of news to the page (MIN_NEWS or less if database has less than that) #
  */
 function loadNews() {
-	$.ajax({url:"api/getNews.php", type:"GET", processData:"false", dataType:"JSON"}).done(function(response){
+	$.ajax({url:"api/getNews.php", type:"GET", processData:"false", dataType:"JSON", data:{numNews:MIN_NEWS}}).done(function(response){
 		if(response['result'] == 'OK') {
 			var news = response['data'];
-			totalNews = news.length;
+			newsDisplayed = news.length; // MIN_NEWS or less
 			
-			if(totalNews == 0) {
-				$('p.warning').removeClass('hide');
-			}
-			else {
-				totalNews > MIN_NEWS ? newsDisplayed = MIN_NEWS : newsDisplayed = totalNews;
+			// calculating contentHeight
+			if((contentHeight = newsDisplayed * NEWS_CONTAINER_HEIGHT + FOOTER_HEIGHT) < 730)
+				contentHeight = 730 + FOOTER_HEIGHT;
 				
-				// calculating contentHeight
-				if((contentHeight = newsDisplayed * NEWS_CONTAINER_HEIGHT + FOOTER_HEIGHT) < 730)
-					contentHeight = 730 + FOOTER_HEIGHT;
-					
-				// adding the latest news 
-				for(var i = 0; i < newsDisplayed; i++)
-					addNewsToPage_2(news[totalNews-(1+i)]);
-					
-				setInterval('scroll();', 250); // 1/4 of a second
-			}
+			// adding the latest news 
+			for(var i = 0; i < newsDisplayed; i++)
+				addNewsToPage_2(news[i]);
+				
+			setInterval('scroll();', 250); // 1/4 of a second
 		}
+		else if(response['result'] == 'NO_NEWS')
+			$('p.warning').removeClass('hide');
 		else			
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'loadNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -178,8 +191,10 @@ function adminSearch() {
 /*
  * Makes the request to a specific remote server #
  */
-function adminSearchAux(newLocation, totalServers) {	
+function adminSearchAux(newLocation, totalServers) {
+	console.log(newLocation);	
 	$.ajax({url:"api/accessRemoteServer.php", type:"GET", dataType:"JSON", processData:"false", data: {servername:newLocation}}).done(function(response) {
+		console.log(response);
 		if(response['result'] == 'success') {
 			var data = response['data'];
 			$('#searchResults').append('<h4>Results from '+response['server_name']+' ('+newLocation.substr(0,newLocation.indexOf('?'))+'</h4>');
@@ -193,13 +208,18 @@ function adminSearchAux(newLocation, totalServers) {
 				listSearchResults(news, response['server_name']);
 			}
 		}
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {console.log("'adminSearchAux' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+}
+
+function checkAll() {
+	$('#serverPick input:checkbox').attr('checked', 'true');
 }
 
 /*
  * Adds the search result news to the DOM #
  */ 
 function listSearchResults(news,server_name) {
+	console.log(server_name);
 	$.ajax({url:"api/hasThisNews.php", processData:"false", type:"GET", dataType:"JSON", data: {title:news.title, date:news.date.replace('T', ' ')}}).done(function(response) {
 		var date = news.date.replace('T', ' ');
 		// add the news 
@@ -220,7 +240,7 @@ function listSearchResults(news,server_name) {
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {console.log("'listSearchResults' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -242,7 +262,7 @@ function addExternalNews(event) {
 			alert("It looks like we're having some troubles in our side. Please try again later");			
 			maxNewsID--;
 		}
-		}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")"); maxNewsID--;});
+		}).fail(function(textStatus) {alert("'addExternalNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")"); maxNewsID--;});
 }
 
 /*
@@ -261,7 +281,7 @@ function deleteExternalNews(event) {
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");	
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'deleteExternalNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -276,7 +296,7 @@ function refreshExternalNews(event) {
 			$('#refresh-'+news.id+'-'+server_name).hide();
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'refreshExternalNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -324,7 +344,7 @@ function newSearch(option) {
 			$('#searchResults').empty();
 			alert("It looks like we're having some troubles in our side. Please try again later");		
 		}
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " +textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'newSearch' request failed: " +textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -353,7 +373,7 @@ function createAccount() {
 				alert("You have to wait at least 30 seconds to create another account");
 			else
 				alert("It looks like we're having some troubles in our side. Please try again later");	
-		}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+		}).fail(function(textStatus) {alert("'createAccount' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 	}
 }
 
@@ -371,7 +391,7 @@ function addComment() {
 			$('#newCommentText').val("");
 			$('#comments div').last().show('slow');
 		}
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'addComment' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -385,7 +405,7 @@ function removeComment(commentID, newsID) {
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");	
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'removeComment' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -417,7 +437,7 @@ function editComment(commentID) {
 					alert("It looks like we're having some troubles in our side. Please try again later");	
 				icon.attr('src', 'images/edit.png');
 				textarea.remove();
-			}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+			}).fail(function(textStatus) {alert("'editComment' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 		}
 	}
 }
@@ -437,7 +457,16 @@ function editNews(newsID) {
 	}
 	else {
 		if(validateNewsTitle() && validateNewsIntro() && validateNewsText() && validateImgUrl()) { // all the new fields are valid
-			makeXMLHTTP();
+			var xmlhttp;
+			if(window.XMLHttpRequest)
+				xmlhttp = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
+			else
+				if(window.ActiveXObject)
+  					xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
+				else {
+					alert ("Bummer! Your browser does not support XMLHTTP!");
+					return;
+				}
 			
 			var newTitle = $('#news_title_form').val();
 			var newIntro = $('#news_intro_form').val();
@@ -454,7 +483,7 @@ function editNews(newsID) {
 				}
 				else
 					alert("It looks like we're having some troubles in our side. Please try again later");
-			}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+			}).fail(function(textStatus) {alert("'editNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 		}
 	}
 }
@@ -470,7 +499,7 @@ function removeNews(newsID) {
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");	
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'removeNews' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -478,7 +507,17 @@ function removeNews(newsID) {
  */
 function addNews() {	
 	if(validateNewsTitle() && validateNewsIntro() && validateNewsText() && validateImgUrl()) {
-		makeXMLHTTP();
+		var xmlhttp;
+		if(window.XMLHttpRequest)
+			xmlhttp = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
+		else
+			if(window.ActiveXObject)
+  				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
+			else {
+				alert ("Bummer! Your browser does not support XMLHTTP!");
+				return;
+			}
+
 		maxNewsID++;
 				
 		xmlhttp.open("POST","api/addNewNews.php",true);
@@ -537,41 +576,48 @@ function favorite(newsID) {
 		}
 		else 
 			alert("It looks like we're having some troubles in our side. Please try again later");	
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'favorite' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
  * Function that keeps adding news to the DOM as the user scrolls down the page #
  */
 function scroll() {
-	if(newsDisplayed < totalNews) { // if there's still news to show
-		if(navigator.appName == "Microsoft Internet Explorer")
-			scrollPosition = document.documentElement.scrollTop;
-		else
-			scrollPosition = window.pageYOffset;
-	  
-	 	if((contentHeight - pageHeight - scrollPosition) < 400) { // if the user is approaching the end of the page
-			$.ajax({url:"api/getNews.php", type:"GET", processData:"false", dataType:"JSON"}).done(function(msg) {
-				if(msg['result'] == 'OK') {
-					var news = msg['data'];
-			  		var numberNews;
-			 	
-					if( (numberNews = totalNews - newsDisplayed) >= NEWS_INC )
-						numberNews = NEWS_INC;
-					
-				 	contentHeight += numberNews * NEWS_CONTAINER_HEIGHT;
-			  
-			  		// adding more news to the page 
-			  		for(var i = 0; i < numberNews; i++)
-						addNewsToPage_2(news[totalNews-newsDisplayed-(1+i)]);
-					
-					newsDisplayed += numberNews;
-				}
+
+	$.ajax({url:"api/getNumNews.php", processData:"false", type:"GET"}).done(function(response){
+		if(response != 'QUERY_ERROR') {
+			totalNews = response;
+
+			if(newsDisplayed < totalNews) { // if there's still news to show
+				if(navigator.appName == "Microsoft Internet Explorer")
+					scrollPosition = document.documentElement.scrollTop;
 				else
-					alert("It looks like we're having some troubles in our side. Please try again later");
-			}).fail(function(textStatus) {alert("Request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
-	  	}
-	}
+					scrollPosition = window.pageYOffset;
+			  
+			 	if((contentHeight - pageHeight - scrollPosition) < 400) { // if the user is approaching the end of the page
+					$.ajax({url:"api/getNews.php", type:"GET", processData:"false", dataType:"JSON", data:{numNews:NEWS_INC, displayed:newsDisplayed}}).done(function(response){
+						if(response['result'] == 'OK') {
+							var news = response['data'];
+
+							/*if((numberNews = totalNews - newsDisplayed) >= NEWS_INC)
+								numberNews = NEWS_INC;*/
+							numberNews = news.length;
+
+							contentHeight += numberNews * NEWS_CONTAINER_HEIGHT;
+
+							// adding more news to the page
+							for(var i = 0; i < numberNews; i++)
+								addNewsToPage_2(news[i]);
+							
+							newsDisplayed += numberNews;
+						}
+						else
+							console.log("It looks like we're having some troubles in our side. Please try again later");
+					}).fail(function(textStatus) {console.log("'scroll' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+			  	}
+			}
+		}
+	})
 }
 
 /*
@@ -585,7 +631,7 @@ function deleteUser(userID) {
 		}
 		else 
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'deleteUser' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -597,7 +643,7 @@ function changePermission(newPermission, userID) {
 			window.location.reload();
 		else 
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});	
+	}).fail(function(textStatus) {alert("'changePermission' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});	
 }
 
 /*
@@ -605,14 +651,13 @@ function changePermission(newPermission, userID) {
  */
 function deleteTag(tagID) {
 	$.ajax({url:"api/deleteTag.php", type:"GET", processData:"false", data: {tagID: tagID}}).done(function(response) {
-		console.log(response);
 		if(response == 'OK') {
 			$('#tag'+tagID).hide('slow');
 			setTimeout(function(){$('#tag'+tagID).remove();}, 3000);
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'deleteTag' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -626,11 +671,11 @@ function removeTag(tagID, newsID) {
 		}
 		else
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'removeTag' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
- * Adds a new tag to the database #
+ * Adds a new tag to the database and adds a reference to it to a news #
  */
 function addTag(e, newsID) {
 	if(e.keyCode == 32) { // everytime the space key is pressed 
@@ -640,15 +685,36 @@ function addTag(e, newsID) {
 		
 		if(tag.length > 0) {	
 			$.ajax({url:"api/addTag.php", processData:"false", type:"POST", data:{tag:tag, newsID:newsID}}).done(function(response){
-				if(response.indexOf('OK') != -1) { // if response as OK in it
+				if(response.indexOf('OK') != -1) { // if response has OK in it
 					var tagID = response.substr(2, response.length-2);
 					$('<span class="tag" id="tag'+tagID+'">'+tag+'<img src="images/remove8.png" alt="remove tag" onclick="removeTag('+tagID+','+newsID+')" /></span>').insertBefore('#tagReader');
 				}
-			}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+			}).fail(function(textStatus) {alert("'addTag' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 		}
 		$('#tagReader').val('');
 	}
 }
+
+function addNewTag(event) {
+	if(event.keyCode == 32) { // everytime the space key is pressed
+		var tag = $('#tagReader').val();
+		tag = tag.substr(0, tag.length-1); // removes the space
+		tag = capitaliseFirstLetter(tag.toLowerCase()); // only the first letter is capitalized
+		
+		if(tag.length > 0) {	
+			$.ajax({url:"api/addNewTag.php", processData:"false", type:"POST", data:{tag:tag}}).done(function(response){
+				if(response.indexOf('OK') != -1) { // if response has OK in it
+					var tagID = response.substr(2, response.length-2);
+					$('<span class="tag justAdded" id="tag'+tagID+'">'+tag+'<img src="images/remove8.png" alt="remove tag" onclick="deleteTag('+tagID+')" /></span>').insertBefore('#tagReader');
+				}
+				else if(response != 'ALREADY_EXISTS')
+					alert("It looks like we're having some troubles in our side. Please try again later");
+			}).fail(function(textStatus) {alert("'addNewTag' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+		}
+		$('#tagReader').val('');
+	}
+}
+
 
 /*
  * Capitalizes the first letter of a string #
@@ -669,7 +735,7 @@ function showHint(str) {
 			if(response != 'NO_STR' && response != 'NO_ACCESS' && response != 'QUERY_NOT_ABLE_TO_PERFORM') {
 				$('#tagHint').text(response);
 			}	
-		}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+		}).fail(function(textStatus) {alert("'showHint' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 	}
 }
 
@@ -683,7 +749,7 @@ function removeServer(serverID) {
 			$('#server'+serverID).remove();
 		else 
 			alert("It looks like we're having some troubles in our side. Please try again later");
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'removeServer' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -695,8 +761,8 @@ function addNewServer() {
 	
 	if(validateServerName()) {	
 		// check the response with AJAX to see if it's a valid server
-		$.ajax({url:"api/accessRemoteServer.php", type:"GET", dataType:"JSON", processData:"false", data: { servername: servername.val() }}).done(function(response) {
-			if(response['result'] == 'error') {
+		$.ajax({url:"api/accessRemoteServer.php", type:"GET", dataType:"JSON", processData:"false", data:{servername:servername.val() }}).done(function(response) {
+			if(response['result'] == 'error' || response['result'] == "success") {
 				addNewServerAux();
 			}
 			else if(response['result'] == 'FAILURE') {
@@ -709,7 +775,7 @@ function addNewServer() {
 				servernameInfo.text("The API of that server is not working correctly");
 				servernameInfo.addClass("error");
 			}
-		}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+		}).fail(function(textStatus) {alert("'addNewServer' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 	}
 }
 	
@@ -731,7 +797,7 @@ function addNewServerAux() {
 		}
 		else 
 			alert("It looks like we're having some troubles in our side. Please try again later");	
-	}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+	}).fail(function(textStatus) {alert("'addNewServerAux' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
 /*
@@ -762,7 +828,7 @@ function changeUserName(userID) {
 					name.text(changes);
 				else
 					alert("It looks like we're having some troubles in our side. Please try again later");
-			}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+			}).fail(function(textStatus) {alert("'changeUserName' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 		}
 		else
 			$('#infoNameEditor').text('invalid name');
@@ -797,7 +863,7 @@ function changeUserEmail(userID) {
 					email.text(changes);
 				else
 					alert("It looks like we're having some troubles in our side. Please try again later");
-			}).fail(function(textStatus) {alert(getFunctionName(arguments.callee.toString())+" request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
+			}).fail(function(textStatus) {alert("'changeUserEmail' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 		}
 		else
 			$('#infoEmailEditor').text('invalid email');
@@ -808,7 +874,7 @@ function changeUserEmail(userID) {
  * Checks if there's been a new addition to the database, if so, it warns the user
  */ 
 function checkForNews() {
-		$.ajax({url:"api/getNumNews.php", processData:"false", type:"GET"}).done(function(response) {
+		$.ajax({url:"api/getMaxNewsId.php", processData:"false", type:"GET"}).done(function(response) {
 			if(maxNewsID == -1) { // still doesn't have the max news ID
 				if(response != 'QUERY_ERROR') {
 					maxNewsID = response;
@@ -1031,11 +1097,6 @@ function validateNewsComment() {
 		comment.removeClass("error");
 		return true;
 	}
-}
-
-function getFunctionName(arguments) {
-	var functionName = arguments.substr('function '.length);
-	return (functionName.substr(0, functionName.indexOf('(')));
 }
 
 

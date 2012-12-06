@@ -13,11 +13,11 @@
     <meta name="description" content="LTW Social News Project 2012" />
     
     <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="scripts/scripts.js"></script>
+    <script src="jquery.js"></script>
+    <script src="scripts/scripts.js"></script>
 </head>
 
-<body>
+<body class="config" id="top">
 	<div id="wrapper">
     	<? include 'api/header.php'; ?>
         <div id="content-wrapper">
@@ -65,6 +65,7 @@
 								echo '<span class="tag" id="tag'.$tag['id'].'">'.ucwords($tag['text']).'<img src="images/remove8.png" alt="remove tag" onclick="deleteTag('.$tag['id'].')" /></span>';
 							}	
 						}
+						echo '<input type="text" id="tagReader" placeholder="new tag...hit space to add" onkeyup="addNewTag(event);" autocomplete="off" /></div>';
 					}
 				}
 				else {

@@ -46,11 +46,10 @@ CREATE TABLE servers (
 	server_name VARCHAR
 );
 
-INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10087/News/api/news.php');
-INSERT INTO servers VALUES(NULL, 'http://gnomo.fe.up.pt/~ei10045/proj/api/news.php');
-INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10153/projecto/api/news.php');
 INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10072/LTW/Proj1/api/news.php');
-INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10036/socialus/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10083/fishynews/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://gnomo.fe.up.pt/~ei10107/LTW/trabalho1/api/news.php');
+
 
 INSERT INTO tags VALUES(NULL, 'Desporto');
 INSERT INTO tags VALUES(NULL, 'Palha');

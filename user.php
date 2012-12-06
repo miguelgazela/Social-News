@@ -13,16 +13,25 @@
     <meta name="description" content="LTW Social News Project 2012" />
     
     <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="scripts/scripts.js"></script>
+    <script src="jquery.js"></script>
+    <script src="scripts/scripts.js"></script>
 </head>
 
-<body>
+<?
+	if(isset($_GET['user_id'])) {
+		if(isset($_SESSION['userID']) && $_SESSION['userID'] == $_GET['user_id'])
+			echo '<body class="_User" id="top">';
+		else
+			echo '<body id="top">';
+	}
+	else
+		echo '<body id="top">';
+?>
 	<div id="wrapper">
     	<? include 'api/header.php'; ?>
         
         <div id="content-wrapper" class="userProfile">
-        	<?php
+        	<?
 				if(isset($_GET['user_id'])) {
 					
 					$db = new PDO("sqlite:socialnews.db");

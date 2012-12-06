@@ -2,7 +2,7 @@
 	session_start();
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 
 <head>
@@ -13,11 +13,11 @@
     <meta name="description" content="LTW Social News Project 2012" />
     
     <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="scripts/scripts.js"></script>
+    <script src="jquery.js"></script>
+    <script src="scripts/scripts.js"></script>
 </head>
 
-<body>
+<body class="_NewsSearch" id="top">
 	<div id="wrapper">
     	<? include 'api/header.php'; ?>
         
@@ -39,7 +39,8 @@
 							$result = $query->fetchAll(PDO::FETCH_ASSOC);
 							foreach($result as $server)
 								echo '<div><input type="checkbox" name="server" id="server'.$server['id'].'" value="'.$server['server_name'].'"><span>'.$server['server_name'].'</div>';	
-						}	
+						}
+						echo '<input type="button" value="All" onClick="checkAll()">';
 						echo '</form>';
 					}
 					
