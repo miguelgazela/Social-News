@@ -166,23 +166,28 @@ function adminSearch() {
 
 		for(var i = 0; i < servers.length; i++) { // for each checked server
 			new_location = servers[i];
-			var startDate = $('#startDate_search').val();
-			var endDate = $('#endDate_search').val();
 
-			if(startDate == '')
-				new_location += "?start_date=1970-01-01T08:00:00";
-			else
-				new_location += "?start_date=" + $('#startDate_search').val();
+			if(new_location == 'news.php')
+				newSearch(2, 2); // advanced search without cleaning older results
+			else {
+				var startDate = $('#startDate_search').val();
+				var endDate = $('#endDate_search').val();
 
-			if(endDate == '') {
-				var dateNow = new Date();
-				new_location += ("&end_date=" + dateNow.toISOString().substr(0,19));
+				if(startDate == '')
+					new_location += "?start_date=1970-01-01T08:00:00";
+				else
+					new_location += "?start_date=" + $('#startDate_search').val();
+
+				if(endDate == '') {
+					var dateNow = new Date();
+					new_location += ("&end_date=" + dateNow.toISOString().substr(0,19));
+				}
+				else
+					new_location += ("&end_date=" + $('#endDate_search').val());
+
+				new_location += ("&tags=" + $('#tags_search').val());
+				adminSearchAux(new_location, servers.length);
 			}
-			else
-				new_location += ("&end_date=" + $('#endDate_search').val());
-
-			new_location += ("&tags=" + $('#tags_search').val());
-			adminSearchAux(new_location, servers.length);
 		}
 		$('#searchResults').css("margin-top", "30px");
 	}
@@ -192,9 +197,7 @@ function adminSearch() {
  * Makes the request to a specific remote server #
  */
 function adminSearchAux(newLocation, totalServers) {
-	console.log(newLocation);	
 	$.ajax({url:"api/accessRemoteServer.php", type:"GET", dataType:"JSON", processData:"false", data: {servername:newLocation}}).done(function(response) {
-		console.log(response);
 		if(response['result'] == 'success') {
 			var data = response['data'];
 			$('#searchResults').append('<h4>Results from '+response['server_name']+' ('+newLocation.substr(0,newLocation.indexOf('?'))+'</h4>');
@@ -219,7 +222,6 @@ function checkAll() {
  * Adds the search result news to the DOM #
  */ 
 function listSearchResults(news,server_name) {
-	console.log(server_name);
 	$.ajax({url:"api/hasThisNews.php", processData:"false", type:"GET", dataType:"JSON", data: {title:news.title, date:news.date.replace('T', ' ')}}).done(function(response) {
 		var date = news.date.replace('T', ' ');
 		// add the news 
@@ -238,8 +240,6 @@ function listSearchResults(news,server_name) {
 			$('#delete-'+news.id+'-'+server_name).hide();
 			$('#refresh-'+news.id+'-'+server_name).hide();
 		}
-		else
-			alert("It looks like we're having some troubles in our side. Please try again later");
 	}).fail(function(textStatus) {console.log("'listSearchResults' request failed: " + textStatus['status']+" ("+textStatus['statusText']+")");});
 }
 
@@ -251,7 +251,7 @@ function addExternalNews(event) {
 	var server_name = event.data.server;
 	maxNewsID++;
 	
-	$.ajax({url:"api/addExternalNews.php", processData:"false", type:"POST", data: {title:news.title, text:news.text, date:news.date.replace('T', ' ')}}).done(function(response) {
+	$.ajax({url:"api/addExternalNews.php", processData:"false", type:"POST", data: {title:news.title, text:news.text, date:news.date.replace('T', ' '), tags:news.tags}}).done(function(response) {
 		if(response == 'OK')
 		{
 			$('#add-'+news.id+'-'+server_name).hide();	
@@ -302,14 +302,14 @@ function refreshExternalNews(event) {
 /*
  * Make a new search
  */ 
-function newSearch(option) {
+function newSearch(option1, option2) {
 	var new_location;
 	
-	if(option == 1) { // header search, only allows search with tags
+	if(option1 == 1) { // header search, only allows search with tags
 		new_location = "api/news.php?start_date=&end_date=&tags=";
 		new_location += $('#search_hidden').text();
 	}
-	else if(option == 2) { // advanced search
+	else if(option1 == 2) { // advanced search
 		if($('#startDate_search').val() == '' && $('#endDate_search').val() == '' && $('#tags_search').val() == '') {
 			alert('You have to use at least one of the fields');
 			return false;
@@ -326,11 +326,18 @@ function newSearch(option) {
 	
 	$.ajax({url:new_location, type:"GET", dataType:"JSON", processData:"false"}).done(function(searchResult) {
 		if(searchResult['result'] == 'success') {
-			$('#searchResults').empty(); // clear possible results from an old search
+			if(option2 == 1)
+				$('#searchResults').empty(); // clear possible results from an old search
+			else if(option2 == 2)
+				$('#searchResults').append('<h4>Results from '+searchResult["server_name"]+'</h4>');
+
 			var data = searchResult['data'];
 								
 			if(data.length == 0) {
-				$('#searchResults').append('<p class="warning">Oops, it looks like we don\'t have any news for you</p>');
+				if(option2 == 2)
+					$('#searchResults').append('<p class="serverWarning">This group doesn\'t have any news for you</p>');
+				else
+					$('#searchResults').append('<p class="warning">Oops, it looks like we don\'t have any news for you</p>');
 			}
 			else { // returned at least 1 news
 				for(var i = 0; i < data.length; i++) {

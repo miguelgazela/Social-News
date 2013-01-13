@@ -49,6 +49,7 @@ CREATE TABLE servers (
 INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10072/LTW/Proj1/api/news.php');
 INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10083/fishynews/api/news.php');
 INSERT INTO servers VALUES(NULL, 'http://gnomo.fe.up.pt/~ei10107/LTW/trabalho1/api/news.php');
+INSERT INTO servers VALUES(NULL, 'http://paginas.fe.up.pt/~ei10051/Projeto/api/news.php');
 
 
 INSERT INTO tags VALUES(NULL, 'Desporto');

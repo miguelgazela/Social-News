@@ -28,7 +28,7 @@
 					if(isset($_SESSION['username']) && $_SESSION['userPermission'] == 3) {
 						echo '<form id="serverPick">'
 						,'<p>Check the servers where you want to run the search</p>'
-						, '<div><input type="checkbox" name="server" value="http://paginas.fe.up.pt/~ei10076/Social_News/api/news.php" checked="checked"><span>Our database</div>';
+						, '<div><input type="checkbox" name="server" value="news.php" checked="checked"><span>Our database</div>';
 					
 						// get the servers available
 						$db = new PDO("sqlite:socialnews.db");
@@ -53,14 +53,14 @@
 					if(isset($_SESSION['username']) && $_SESSION['userPermission'] == 3)
 						echo '	<div><input type="button" value="Search" name="search_submit" onClick="adminSearch()" /></div>';
 					else
-						echo '	<div><input type="button" value="Search" name="search_submit" onClick="newSearch(2)" /></div>';
+						echo '	<div><input type="button" value="Search" name="search_submit" onClick="newSearch(2, 1)" /></div>';
 						
 					echo '</div>';
 				}
 				else {
 					echo '<p class="hide" id="search_hidden">' . $_GET['awesome_search'] . '</p>';
 					echo '<script type="text/javascript">'
-					, 'newSearch(1);'
+					, 'newSearch(1, 1);'
 					, '</script>';
 				}
 			?>
